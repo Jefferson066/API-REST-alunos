@@ -4,7 +4,8 @@ class UserController {
   async store(req, res) {
     try {
       const user = await User.create(req.body);
-      return res.json(user);
+      const { id, nome, email } = user;
+      return res.json({ id, nome, email });
     } catch (e) {
       return res.status(400).json({
         errors: e.errors.map((err) => err.message),
@@ -14,7 +15,7 @@ class UserController {
 
   async index(req, res) {
     try {
-      const users = await User.findAll();
+      const users = await User.findAll({ attributes: ['id', 'nome', 'email'] });
       if (users.length === 0) {
         return res.status(404).json({
           errors: [' Não existe usuários cadastrados.'],
@@ -30,22 +31,23 @@ class UserController {
 
   async show(req, res) {
     try {
-      const { id } = req.params;
+      // const { id } = req.params.id;
       // eslint-disable-next-line no-restricted-globals
-      if (isNaN(id)) {
+      if (isNaN(req.params.id)) {
         return res.status(400).json({
           errors: ['Id inválido.'],
         });
       }
 
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(req.params.id);
 
       if (!user) {
         return res.status(404).json({
           errors: ['Usuário não existe.'],
         });
       }
-      return res.json(user);
+      const { id, nome, email } = user;
+      return res.json({ id, nome, email });
     } catch (e) {
       return res.status(400).json({
         errors: e.errors.map((err) => err.message),
@@ -55,15 +57,7 @@ class UserController {
 
   async update(req, res) {
     try {
-      const { id } = req.params;
-      // eslint-disable-next-line no-restricted-globals
-      if (isNaN(id)) {
-        return res.status(400).json({
-          errors: ['Id inválido.'],
-        });
-      }
-
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(req.userId);
 
       if (!user) {
         return res.status(404).json({
@@ -72,7 +66,8 @@ class UserController {
       }
 
       const newUser = await user.update(req.body);
-      return res.json(newUser);
+      const { id, nome, email } = newUser;
+      return res.json({ id, nome, email });
     } catch (e) {
       return res.status(400).json({
         errors: e.errors.map((err) => err.message),
@@ -82,15 +77,7 @@ class UserController {
 
   async delete(req, res) {
     try {
-      const { id } = req.params;
-      // eslint-disable-next-line no-restricted-globals
-      if (isNaN(id)) {
-        return res.status(400).json({
-          errors: ['Id inválido.'],
-        });
-      }
-
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(req.userId);
 
       if (!user) {
         return res.status(404).json({
@@ -99,7 +86,7 @@ class UserController {
       }
 
       await user.destroy();
-      return res.json({ msg: 'Usuário deletado.', user });
+      return res.json({ msg: 'Usuário deletado.' });
     } catch (e) {
       return res.status(400).json({
         errors: e.errors.map((err) => err.message),
