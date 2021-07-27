@@ -39,6 +39,7 @@ export default class User extends Model {
       },
     }, {
       sequelize,
+      tableName: 'users',
     });
     this.addHook('beforeSave', async (user) => {
       if (user.password) {
