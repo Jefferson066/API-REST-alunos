@@ -1,8 +1,16 @@
 import Aluno from '../models/Aluno';
+import Imagem from '../models/Imagem';
 
 class AlunoController {
   async index(req, res) {
-    const alunos = await Aluno.findAll({ attributes: ['id', 'nome', 'sobrenome', 'email', 'idade', 'peso', 'altura'] });
+    const alunos = await Aluno.findAll({
+      attributes: ['id', 'nome', 'sobrenome', 'email', 'idade', 'peso', 'altura'],
+      order: [['id', 'DESC'], [Imagem, 'id', 'DESC']],
+      include: {
+        model: Imagem,
+        attributes: ['url', 'filename'],
+      },
+    });
     res.json(alunos);
   }
 
@@ -27,7 +35,14 @@ class AlunoController {
           errors: ['Id inválido.'],
         });
       }
-      const aluno = await Aluno.findByPk(id, { attributes: ['id', 'nome', 'sobrenome', 'email', 'idade', 'peso', 'altura'] });
+      const aluno = await Aluno.findByPk(id, {
+        attributes: ['id', 'nome', 'sobrenome', 'email', 'idade', 'peso', 'altura'],
+        order: [['id', 'DESC'], [Imagem, 'id', 'DESC']],
+        include: {
+          model: Imagem,
+          attributes: ['url', 'filename'],
+        },
+      });
       if (!aluno) {
         return res.status(404).json({
           errors: ['Aluno inexistente.'],
